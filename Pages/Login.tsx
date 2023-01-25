@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   StyleSheet,
   TouchableOpacity,
@@ -5,16 +6,73 @@ import {
   Text,
   View,
   Image,
+  Modal,
+  Pressable,
 } from 'react-native';
-import React, {useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {useState, useEffect} from 'react';
+
+export type UserObject = {
+  userEmail: string;
+  userPassword: string;
+};
 
 const Login = (props: {navigation: {navigate: (arg0: string) => void}}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  console.log(email, password);
+  const [showModal, setShowModal] = useState(false);
+  const [errText, setErrText] = useState('');
+
+  useEffect(() => {
+    retreiveCredentials('user_credentials').then(value => {
+      if (value !== null) {
+        setShowModal(false);
+        setErrText('');
+        props.navigation.navigate('Home');
+      }
+    });
+  }, []);
+
+  const storeCredentials = async (userObj: UserObject) => {
+    try {
+      await AsyncStorage.setItem('user_credentials', JSON.stringify(userObj));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const retreiveCredentials = async (key: string) => {
+    try {
+      const userObj = (await AsyncStorage.getItem(key)) as string;
+      const result = JSON.parse(userObj);
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handlelogin = () => {
-    props.navigation.navigate('Home');
+    const passwordRegex = new RegExp(
+      '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})',
+    );
+
+    const userObj = {
+      userEmail: email,
+      userPassword: password,
+    };
+
+    if (
+      email.match(/[^\s@]+@[^\s@]+\.[^\s@]+/gi) &&
+      passwordRegex.test(password)
+    ) {
+      setShowModal(false);
+      setErrText('');
+      storeCredentials(userObj);
+      props.navigation.navigate('Home');
+    } else {
+      setErrText('Entered email/password is Invalid');
+      setShowModal(true);
+    }
   };
 
   const handlesignup = () => {
@@ -23,6 +81,24 @@ const Login = (props: {navigation: {navigate: (arg0: string) => void}}) => {
 
   return (
     <View style={styles.container}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showModal}
+        onRequestClose={() => {
+          setShowModal(false);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>{errText}</Text>
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => setShowModal(false)}>
+              <Text style={styles.textStyle}>Retry Login/Signup</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
       <Image
         style={styles.image}
         resizeMode="contain"
@@ -66,6 +142,46 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: '#F9A826',
+    borderRadius: 20,
+    padding: 55,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonClose: {
+    backgroundColor: '#F9A82690',
+  },
+  textStyle: {
+    color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
   },
   inputcontainer: {
     backgroundColor: '#F9A82650',
