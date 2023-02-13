@@ -6,22 +6,28 @@ import Login from './Pages/Login';
 import Signup from './Pages/Signup';
 import Hometab from './Tabs/Hometab/Hometab';
 
+// Redux store
+import {store} from './Redux/store';
+import {Provider} from 'react-redux';
+
 const Stack = createNativeStackNavigator();
 
 function App() {
   return (
-    <NavigationContainer>
-      <NativeBaseProvider>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-          }}>
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="Signup" component={Signup} />
-          <Stack.Screen name="Home" component={Hometab} />
-        </Stack.Navigator>
-      </NativeBaseProvider>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <NativeBaseProvider>
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+            }}>
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Signup" component={Signup} />
+            <Stack.Screen name="Home" component={Hometab} />
+          </Stack.Navigator>
+        </NativeBaseProvider>
+      </NavigationContainer>
+    </Provider>
   );
 }
 
