@@ -7,16 +7,18 @@ import {
   Heading,
   VStack,
   HStack,
-  Input,
   IconButton,
   Checkbox,
-  useToast,
   Text,
-  AddIcon,
   MinusIcon,
 } from 'native-base';
+import {useSelector, useDispatch} from 'react-redux';
+import {RootState} from '../Redux/store';
+import {deleteTodo, toggleTodo} from '../Redux/features/Todo/todoSlice';
 
 const Home = (props: {navigation: {navigate: (arg0: string) => void}}) => {
+  const dispatch = useDispatch();
+
   const removeUserCredentials = async () => {
     try {
       await AsyncStorage.removeItem('user_credentials');
@@ -30,61 +32,14 @@ const Home = (props: {navigation: {navigate: (arg0: string) => void}}) => {
     props.navigation.navigate('Login');
   };
 
-  const instState = [
-    {
-      title: 'Code',
-      isCompleted: true,
-    },
-    {
-      title: 'Meeting with team at 9',
-      isCompleted: false,
-    },
-    {
-      title: 'Check Emails',
-      isCompleted: false,
-    },
-    {
-      title: 'Write an article',
-      isCompleted: false,
-    },
-  ];
-  const [list, setList] = React.useState(instState);
-  const [inputValue, setInputValue] = React.useState('');
-  const toast = useToast();
-
-  const addItem = (title: string) => {
-    if (title === '') {
-      toast.show({
-        title: 'Please Enter Text',
-        // status: 'warning',
-      });
-      return;
-    }
-
-    setList(prevList => {
-      return [
-        ...prevList,
-        {
-          title: title,
-          isCompleted: false,
-        },
-      ];
-    });
-  };
+  const instState = useSelector((state: RootState) => state.todo.todoList);
 
   const handleDelete = (index: number) => {
-    setList(prevList => {
-      const temp = prevList.filter((_, itemI) => itemI !== index);
-      return temp;
-    });
+    dispatch(deleteTodo(index));
   };
 
   const handleStatusChange = (index: number) => {
-    setList(prevList => {
-      const newList = [...prevList];
-      newList[index].isCompleted = !newList[index].isCompleted;
-      return newList;
-    });
+    dispatch(toggleTodo(index));
   };
 
   return (
@@ -95,7 +50,7 @@ const Home = (props: {navigation: {navigate: (arg0: string) => void}}) => {
             Today
           </Heading>
           <VStack space={4}>
-            <HStack space={2}>
+            {/* <HStack space={2}>
               <Input
                 flex={1}
                 onChangeText={v => setInputValue(v)}
@@ -112,43 +67,51 @@ const Home = (props: {navigation: {navigate: (arg0: string) => void}}) => {
                   setInputValue('');
                 }}
               />
-            </HStack>
+            </HStack> */}
             <VStack space={2}>
-              {list?.map((item, itemI) => (
-                <HStack
-                  w="100%"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  key={item.title + itemI.toString()}>
-                  <Checkbox
-                    isChecked={item.isCompleted}
-                    onChange={() => handleStatusChange(itemI)}
-                    value={item.title}
-                  />
-                  <Text
-                    width="100%"
-                    flexShrink={1}
-                    textAlign="left"
-                    mx="2"
-                    strikeThrough={item.isCompleted}
-                    _light={{
-                      color: item.isCompleted ? 'gray.400' : 'coolGray.800',
-                    }}
-                    _dark={{
-                      color: item.isCompleted ? 'gray.400' : 'coolGray.50',
-                    }}
-                    onPress={() => handleStatusChange(itemI)}>
-                    {item.title}
-                  </Text>
-                  <IconButton
-                    size="sm"
-                    colorScheme="trueGray"
-                    color="red.600"
-                    icon={<MinusIcon />}
-                    onPress={() => handleDelete(itemI)}
-                  />
-                </HStack>
-              ))}
+              {instState?.map(
+                (
+                  item: {
+                    title: string;
+                    isCompleted: boolean | undefined;
+                  },
+                  itemI: number,
+                ) => (
+                  <HStack
+                    w="100%"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    key={item.title + itemI.toString()}>
+                    <Checkbox
+                      isChecked={item.isCompleted}
+                      onChange={() => handleStatusChange(itemI)}
+                      value={item.title}
+                    />
+                    <Text
+                      width="100%"
+                      flexShrink={1}
+                      textAlign="left"
+                      mx="2"
+                      strikeThrough={item.isCompleted}
+                      _light={{
+                        color: item.isCompleted ? 'gray.400' : 'coolGray.800',
+                      }}
+                      _dark={{
+                        color: item.isCompleted ? 'gray.400' : 'coolGray.50',
+                      }}
+                      onPress={() => handleStatusChange(itemI)}>
+                      {item.title}
+                    </Text>
+                    <IconButton
+                      size="sm"
+                      colorScheme="trueGray"
+                      color="red.600"
+                      icon={<MinusIcon />}
+                      onPress={() => handleDelete(itemI)}
+                    />
+                  </HStack>
+                ),
+              )}
             </VStack>
           </VStack>
         </Box>

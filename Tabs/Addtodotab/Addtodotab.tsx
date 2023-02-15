@@ -1,5 +1,6 @@
 import {StyleSheet, View} from 'react-native';
 import React from 'react';
+import {useDispatch} from 'react-redux';
 import {
   Center,
   Box,
@@ -12,11 +13,15 @@ import {
   useToast,
 } from 'native-base';
 
+import {addTodo} from '../../Redux/features/Todo/todoSlice';
+
 const Addtodotab = (props: {
   navigation: {navigate: (arg0: string) => void};
 }) => {
   const [inputValue, setInputValue] = React.useState('');
   const toast = useToast();
+
+  const dispatch = useDispatch();
 
   const addItem = (title: string) => {
     if (title === '') {
@@ -26,6 +31,13 @@ const Addtodotab = (props: {
       });
       return;
     }
+    dispatch(
+      addTodo({
+        title,
+        isCompleted: false,
+      }),
+    );
+    props.navigation.navigate('Home');
   };
 
   return (
