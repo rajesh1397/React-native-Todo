@@ -17,7 +17,11 @@ export type UserObject = {
   userPassword: string;
 };
 
-const Login = (props: {navigation: {navigate: (arg0: string) => void}}) => {
+const Login = (props: {
+  navigation: {
+    navigate: (arg0: string, arg1?: {screen: string} | undefined) => void;
+  };
+}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -28,7 +32,7 @@ const Login = (props: {navigation: {navigate: (arg0: string) => void}}) => {
       if (value !== null) {
         setShowModal(false);
         setErrText('');
-        props.navigation.navigate('Home');
+        props.navigation.navigate('Root');
       }
     });
   }, []);

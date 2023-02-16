@@ -11,6 +11,7 @@ import {
   Checkbox,
   Text,
   MinusIcon,
+  Button,
 } from 'native-base';
 import {useSelector, useDispatch} from 'react-redux';
 import {RootState} from '../Redux/store';
@@ -46,28 +47,19 @@ const Home = (props: {navigation: {navigate: (arg0: string) => void}}) => {
     <View style={styles.container}>
       <Center w="100%">
         <Box maxW="300" w="100%">
-          <Heading mb="2" size="md">
-            Today
-          </Heading>
+          <HStack w="100%" justifyContent="space-between" alignItems="center">
+            <Heading mb="2" size="md">
+              Today
+            </Heading>
+            <Button
+              size="sm"
+              // variant="outline"
+              colorScheme="secondary"
+              onPress={handlelogout}>
+              Logout
+            </Button>
+          </HStack>
           <VStack space={4}>
-            {/* <HStack space={2}>
-              <Input
-                flex={1}
-                onChangeText={v => setInputValue(v)}
-                value={inputValue}
-                placeholder="Add Task"
-              />
-              <IconButton
-                borderRadius="sm"
-                variant="solid"
-                color="yellow.400"
-                icon={<AddIcon />}
-                onPress={() => {
-                  addItem(inputValue);
-                  setInputValue('');
-                }}
-              />
-            </HStack> */}
             <VStack space={2}>
               {instState?.map(
                 (
